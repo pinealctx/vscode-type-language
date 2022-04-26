@@ -45,7 +45,8 @@ class TLDefinitionProvider implements vscode.DefinitionProvider {
     if (
       !workspace ||
       !fs.existsSync(workspace) ||
-      !fs.statSync(workspace).isDirectory()
+      !fs.statSync(workspace).isDirectory() ||
+      !checkFileInDir(path.basename(filename), workspace)
     ) {
       workspace = path.dirname(filename);
     }
@@ -175,6 +176,20 @@ function readTLFiles(dir: string): string[] {
     }
   }
   return dist;
+}
+
+function checkFileInDir(inDir: string, outDir: string): boolean {
+  const inDirs = inDir.split("/");
+  const outDirs = outDir.split("/");
+  if (outDirs.length > inDirs.length) {
+    return false;
+  }
+  for (let i = 0; i < outDirs.length; i++) {
+    if (inDirs[i] !== outDirs[i]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 export default function registerDefinitionProvider(
