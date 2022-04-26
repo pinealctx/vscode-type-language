@@ -2,7 +2,7 @@
   "name": "type-language",
   "displayName": "Type Language",
   "description": "Support for the Type Language in Visual Studio Code",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "icon": "images/favicon.ico",
   "engines": {
     "vscode": "^1.66.0"

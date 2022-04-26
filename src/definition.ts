@@ -6,7 +6,7 @@ class TLDefinitionProvider implements vscode.DefinitionProvider {
   public provideDefinition(
     document: vscode.TextDocument,
     position: vscode.Position,
-    token: vscode.CancellationToken
+    _: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.Definition | vscode.DefinitionLink[]> {
     const wordRange = document.getWordRangeAtPosition(position);
     if (!wordRange) {
@@ -82,7 +82,15 @@ function parseLineType(
   const dist: { type: string; start: number; end: number }[] = [];
   const m = line.match(/= (.*?);/);
   if (m) {
-    dist.push({ type: m[1], start: m.index! + 2, end: line.length - 1 });
+    let type = m[1];
+    let start = m.index! + 2;
+    const end = line.indexOf(";");
+    const index = m[1].indexOf(".");
+    if (index !== -1) {
+      type = m[1].split(".")[1];
+      start += 1 + index;
+    }
+    dist.push({ type, start, end });
   }
   const matches = line.matchAll(
     /:([vV]ector<(.*?)>|flags.\d\?(Vector<(.*?)>|(.*?))|(.*?))(?: )/g
@@ -98,10 +106,11 @@ function parseLineType(
       type = value[i] || type;
     }
 
+    const start = value.index! + value[0].lastIndexOf(type);
     dist.push({
       type,
-      start: value.index! + value[0].lastIndexOf(type),
-      end: value.index! + value[0].length - 1,
+      start,
+      end: start + type.length,
     });
   }
   return dist;
